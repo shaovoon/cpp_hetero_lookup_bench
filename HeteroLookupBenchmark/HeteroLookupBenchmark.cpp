@@ -21,7 +21,7 @@ public:
 		auto end = std::chrono::high_resolution_clock::now();
 		auto dur = end - begin;
 		auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
-		std::cout << std::setw(40) << text << " timing:" << std::setw(5) << ms << "ms" << std::endl;
+		std::cout << std::setw(32) << text << " timing:" << std::setw(5) << ms << "ms" << std::endl;
 	}
 
 private:
