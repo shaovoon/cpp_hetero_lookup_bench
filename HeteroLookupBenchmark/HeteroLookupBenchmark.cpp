@@ -118,8 +118,14 @@ void initMapTrans(const std::vector<std::string>& vs, std::map<std::string, size
 	}
 }
 
+struct MyEqual : public std::equal_to<>
+{
+	using is_transparent = void;
+};
+
 struct string_hash {
-	using transparent_key_equal = std::equal_to<>;  // Pred to use
+	using is_transparent = void;
+	using key_equal = std::equal_to<>;  // Pred to use
 	using hash_type = std::hash<std::string_view>;  // just a helper local type
 	size_t operator()(std::string_view txt) const { return hash_type{}(txt); }
 	size_t operator()(const std::string& txt) const { return hash_type{}(txt); }
@@ -135,7 +141,7 @@ void initUnorderedMapNormal(const std::vector<std::string>& vs, std::unordered_m
 	}
 }
 
-void initUnorderedMapTrans(const std::vector<std::string>& vs, std::unordered_map<std::string, size_t, string_hash >& unordmapTrans)
+void initUnorderedMapTrans(const std::vector<std::string>& vs, std::unordered_map<std::string, size_t, string_hash, MyEqual>& unordmapTrans)
 {
 	unordmapTrans.clear();
 	for (size_t i = 0; i < vs.size(); ++i)
@@ -150,7 +156,7 @@ void benchmark(
 	const std::map<std::string, size_t>& mapNormal,
 	const std::map<std::string, size_t, std::less<> >& mapTrans,
 	const std::unordered_map<std::string, size_t>& unordmapNormal,
-	const std::unordered_map<std::string, size_t, string_hash >& unordmapTrans);
+	const std::unordered_map<std::string, size_t, string_hash, MyEqual>& unordmapTrans);
 
 const size_t MAX_LOOP = 1000000;
 
@@ -166,7 +172,7 @@ int main()
 	initMapTrans(vec_shortstr, mapTrans);
 
 	std::unordered_map<std::string, size_t> unordmapNormal;
-	std::unordered_map<std::string, size_t, string_hash > unordmapTrans;
+	std::unordered_map<std::string, size_t, string_hash, MyEqual> unordmapTrans;
 	initUnorderedMapNormal(vec_shortstr, unordmapNormal);
 	initUnorderedMapTrans(vec_shortstr, unordmapTrans);
 
@@ -204,11 +210,11 @@ int main()
 
 void benchmark(
 	const std::vector<std::string>& vec_shortstr, 
-	const std::vector<std::string_view>& vec_shortstrview, 
+	const std::vector<std::string_view>& vec_shortstrview,
 	const std::map<std::string, size_t>& mapNormal,
 	const std::map<std::string, size_t, std::less<> >& mapTrans,
 	const std::unordered_map<std::string, size_t>& unordmapNormal,
-	const std::unordered_map<std::string, size_t, string_hash >& unordmapTrans)
+	const std::unordered_map<std::string, size_t, string_hash, MyEqual>& unordmapTrans)
 {
 	size_t grandtotal = 0;
 
